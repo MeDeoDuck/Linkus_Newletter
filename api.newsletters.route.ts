@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllNewsletters, createNewsletter } from "@/lib/db";
+import { getAllNewsletters, createNewsletter, initializeDatabase } from "@/lib/db";
 
 const SITE_PASSWORD = process.env.SITE_PASSWORD || "linkus_2026";
 
 export async function GET(request: NextRequest) {
   try {
-    const newsletters = getAllNewsletters();
+    const newsletters = await getAllNewsletters();
     return NextResponse.json(newsletters);
   } catch (error) {
     console.error("Error fetching newsletters:", error);
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newsletter = createNewsletter(title, author, content);
+    const newsletter = await createNewsletter(title, author, content);
     return NextResponse.json(newsletter, { status: 201 });
   } catch (error) {
     console.error("Error creating newsletter:", error);

@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    const newsletter = getNewsletterById(id);
+    const newsletter = await getNewsletterById(id);
     if (!newsletter) {
       return NextResponse.json(
         { error: "뉴스레터를 찾을 수 없습니다." },
@@ -50,7 +50,7 @@ export async function DELETE(
     }
 
     const id = parseInt(params.id);
-    const success = deleteNewsletter(id);
+    const success = await deleteNewsletter(id);
     if (!success) {
       return NextResponse.json(
         { error: "뉴스레터를 찾을 수 없습니다." },

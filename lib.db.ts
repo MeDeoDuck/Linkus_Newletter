@@ -1,19 +1,4 @@
-import Database from "better-sqlite3";
-import path from "path";
-
-const dbPath = path.join(process.cwd(), "data.db");
-const db = new Database(dbPath);
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS newsletters (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    title     TEXT NOT NULL,
-    author    TEXT NOT NULL,
-    content   TEXT NOT NULL,
-    summary   TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-`);
+import { sql } from "@vercel/postgres";
 
 export interface Newsletter {
   id: number;
@@ -24,41 +9,76 @@ export interface Newsletter {
   created_at: string;
 }
 
-export function getAllNewsletters(): Newsletter[] {
-  const stmt = db.prepare(
-    "SELECT * FROM newsletters ORDER BY created_at DESC"
-  );
-  return stmt.all() as Newsletter[];
+// Initialize database table if it doesn't exist
+export async function initializeDatabase() {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletters (
+        id        SERIAL PRIMARY KEY,
+        title     TEXT NOT NULL,
+        author    TEXT NOT NULL,
+        content   TEXT NOT NULL,
+        summary   TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+  } catch (error) {
+    console.error("Database initialization error:", error);
+    throw error;
+  }
 }
 
-export function getNewsletterById(id: number): Newsletter | undefined {
-  const stmt = db.prepare("SELECT * FROM newsletters WHERE id = ?");
-  return stmt.get(id) as Newsletter | undefined;
+export async function getAllNewsletters(): Promise<Newsletter[]> {
+  try {
+    const result = await sql<Newsletter>`
+      SELECT * FROM newsletters ORDER BY created_at DESC
+    `;
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching newsletters:", error);
+    throw error;
+  }
 }
 
-export function createNewsletter(
+export async function getNewsletterById(id: number): Promise<Newsletter | undefined> {
+  try {
+    const result = await sql<Newsletter>`
+      SELECT * FROM newsletters WHERE id = ${id}
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error fetching newsletter:", error);
+    throw error;
+  }
+}
+
+export async function createNewsletter(
   title: string,
   author: string,
   content: string
-): Newsletter {
-  const summary = content.substring(0, 100).replace(/\n/g, " ");
-  const stmt = db.prepare(
-    "INSERT INTO newsletters (title, author, content, summary) VALUES (?, ?, ?, ?)"
-  );
-  const result = stmt.run(title, author, content, summary);
-
-  return {
-    id: result.lastInsertRowid as number,
-    title,
-    author,
-    content,
-    summary,
-    created_at: new Date().toISOString(),
-  };
+): Promise<Newsletter> {
+  try {
+    const summary = content.substring(0, 100).replace(/\n/g, " ");
+    const result = await sql<Newsletter>`
+      INSERT INTO newsletters (title, author, content, summary)
+      VALUES (${title}, ${author}, ${content}, ${summary})
+      RETURNING *
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error creating newsletter:", error);
+    throw error;
+  }
 }
 
-export function deleteNewsletter(id: number): boolean {
-  const stmt = db.prepare("DELETE FROM newsletters WHERE id = ?");
-  const result = stmt.run(id);
-  return (result.changes as number) > 0;
+export async function deleteNewsletter(id: number): Promise<boolean> {
+  try {
+    const result = await sql`
+      DELETE FROM newsletters WHERE id = ${id}
+    `;
+    return result.rowCount > 0;
+  } catch (error) {
+    console.error("Error deleting newsletter:", error);
+    throw error;
+  }
 }
