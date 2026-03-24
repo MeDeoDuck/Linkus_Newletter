@@ -7,6 +7,7 @@
     "reorganize:node": "node move-files.js",
     "reorganize:python": "python reorganize_final.py",
     "reorganize:existing": "node reorganize.js",
+    "cleanup": "node final_cleanup_and_build.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
