@@ -4,7 +4,7 @@ import { getNewsletterById, deleteNewsletter } from "@/lib/db";
 const SITE_PASSWORD = process.env.SITE_PASSWORD || "linkus_2026";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
