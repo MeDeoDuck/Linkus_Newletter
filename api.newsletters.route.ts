@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllNewsletters, createNewsletter, initializeDatabase } from "@/lib/db";
+import { getAllNewsletters, createNewsletter } from "@/lib/db";
 
 const SITE_PASSWORD = process.env.SITE_PASSWORD || "linkus_2026";
 
