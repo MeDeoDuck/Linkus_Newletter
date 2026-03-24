@@ -23,7 +23,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/lib/db": ["./app/lib/db.ts"],
+      "@/components/*": ["./app/components/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

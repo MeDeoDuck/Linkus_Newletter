@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Internal newsletter site",
   "scripts": {
+    "organize": "node organize_structure.js",
+    "reorganize:node": "node move-files.js",
+    "reorganize:python": "python reorganize_final.py",
+    "reorganize:existing": "node reorganize.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -31,9 +31,7 @@ export async function initializeDatabase() {
 export async function getAllNewsletters(): Promise<Newsletter[]> {
   try {
     const result = await sql<Newsletter>`
-      SELECT id, title, author, content, summary, created_at
-      FROM newsletters
-      ORDER BY created_at DESC
+      SELECT * FROM newsletters ORDER BY created_at DESC
     `;
     return result.rows;
   } catch (error) {
@@ -42,14 +40,12 @@ export async function getAllNewsletters(): Promise<Newsletter[]> {
   }
 }
 
-export async function getNewsletterById(id: number): Promise<Newsletter | null> {
+export async function getNewsletterById(id: number): Promise<Newsletter | undefined> {
   try {
     const result = await sql<Newsletter>`
-      SELECT id, title, author, content, summary, created_at
-      FROM newsletters
-      WHERE id = ${id}
+      SELECT * FROM newsletters WHERE id = ${id}
     `;
-    return result.rows[0] || null;
+    return result.rows[0];
   } catch (error) {
     console.error("Error fetching newsletter:", error);
     throw error;
@@ -62,11 +58,11 @@ export async function createNewsletter(
   content: string
 ): Promise<Newsletter> {
   try {
-    const summary = content.substring(0, 100);
+    const summary = content.substring(0, 100).replace(/\n/g, " ");
     const result = await sql<Newsletter>`
       INSERT INTO newsletters (title, author, content, summary)
       VALUES (${title}, ${author}, ${content}, ${summary})
-      RETURNING id, title, author, content, summary, created_at
+      RETURNING *
     `;
     return result.rows[0];
   } catch (error) {
@@ -78,8 +74,7 @@ export async function createNewsletter(
 export async function deleteNewsletter(id: number): Promise<boolean> {
   try {
     const result = await sql`
-      DELETE FROM newsletters
-      WHERE id = ${id}
+      DELETE FROM newsletters WHERE id = ${id}
     `;
     return result.rowCount > 0;
   } catch (error) {
