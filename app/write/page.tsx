@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PasswordModal from '@/components/PasswordModal';
+import { createNewsletter } from '@/lib/github';
 
 export default function WritePage() {
   const [title, setTitle] = useState('');
@@ -27,20 +28,10 @@ export default function WritePage() {
     setError('');
 
     try {
-      const res = await fetch('/api/newsletters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          author,
-          content,
-          password,
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || '글 작성에 실패했습니다.');
+      const result = await createNewsletter(title, author, content);
+      
+      if (!result) {
+        setError('글 작성에 실패했습니다. 다시 시도해주세요.');
         setLoading(false);
         return;
       }

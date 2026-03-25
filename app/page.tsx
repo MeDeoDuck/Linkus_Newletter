@@ -4,14 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PasswordModal from '@/components/PasswordModal';
 import NewsletterCard from '@/components/NewsletterCard';
-
-interface Newsletter {
-  id: number;
-  title: string;
-  author: string;
-  summary: string;
-  created_at: string;
-}
+import { getAllNewsletters, Newsletter } from '@/lib/github';
 
 export default function Home() {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
@@ -25,11 +18,8 @@ export default function Home() {
 
   const fetchNewsletters = async () => {
     try {
-      const res = await fetch('/api/newsletters');
-      if (res.ok) {
-        const data = await res.json();
-        setNewsletters(data);
-      }
+      const data = await getAllNewsletters();
+      setNewsletters(data);
     } catch (error) {
       console.error('Failed to fetch newsletters:', error);
     } finally {

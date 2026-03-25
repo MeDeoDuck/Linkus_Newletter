@@ -4,14 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import PasswordModal from '@/components/PasswordModal';
 import ReactMarkdown from 'react-markdown';
-
-interface Newsletter {
-  id: number;
-  title: string;
-  author: string;
-  content: string;
-  created_at: string;
-}
+import { getNewsletterById, deleteNewsletter, Newsletter } from '@/lib/github';
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -31,7 +24,7 @@ export default function NewsletterDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = parseInt(params.id as string);
 
   useEffect(() => {
     if (!id) return;
@@ -40,9 +33,8 @@ export default function NewsletterDetailPage() {
 
   const fetchNewsletter = async () => {
     try {
-      const res = await fetch(`/api/newsletters/${id}`);
-      if (res.ok) {
-        const data = await res.json();
+      const data = await getNewsletterById(id);
+      if (data) {
         setNewsletter(data);
       } else {
         setError('뉴스레터를 찾을 수 없습니다.');
@@ -67,15 +59,10 @@ export default function NewsletterDetailPage() {
     setDeleting(true);
 
     try {
-      const res = await fetch(`/api/newsletters/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
+      const success = await deleteNewsletter(id);
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || '삭제에 실패했습니다.');
+      if (!success) {
+        setError('삭제에 실패했습니다.');
         setDeleting(false);
         return;
       }

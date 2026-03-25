@@ -23,7 +23,7 @@ function formatDate(dateString: string): string {
 
 export default function NewsletterCard({ newsletter }: NewsletterCardProps) {
   return (
-    <Link href={`/newsletter/${newsletter.id}`}>
+    <Link href={`/newsletters/${newsletter.id}`}>
       <div className="p-6 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
         <h3 className="text-xl font-serif font-bold mb-2 text-gray-900">
           {newsletter.title}
