@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getNewsletterById, deleteNewsletter } from "@/lib/db";
+import { getNewsletterById, deleteNewsletter, initializeDatabase } from "@/lib/db";
 
 const SITE_PASSWORD = process.env.SITE_PASSWORD || "linkus_2026";
+
+let dbInitialized = false;
+
+async function ensureDatabase() {
+  if (!dbInitialized) {
+    try {
+      await initializeDatabase();
+      dbInitialized = true;
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+    }
+  }
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    await ensureDatabase();
+    
     const id = parseInt(params.id);
     if (isNaN(id)) {
       return NextResponse.json(
@@ -28,7 +43,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching newsletter:", error);
     return NextResponse.json(
-      { error: "뉴스레터를 불러올 수 없습니다." },
+      { error: "뉴스레터를 불러올 수 없습니다.", details: String(error) },
       { status: 500 }
     );
   }
@@ -39,6 +54,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    await ensureDatabase();
+    
     const body = await request.json();
     const { password } = body;
 
@@ -62,7 +79,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting newsletter:", error);
     return NextResponse.json(
-      { error: "뉴스레터 삭제에 실패했습니다." },
+      { error: "뉴스레터 삭제에 실패했습니다.", details: String(error) },
       { status: 500 }
     );
   }

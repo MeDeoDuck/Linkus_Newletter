@@ -9,7 +9,6 @@ export interface Newsletter {
   created_at: string;
 }
 
-// Initialize database table if it doesn't exist
 export async function initializeDatabase() {
   try {
     await sql`
@@ -22,9 +21,9 @@ export async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
+    console.log("Database initialized successfully");
   } catch (error) {
     console.error("Database initialization error:", error);
-    throw error;
   }
 }
 

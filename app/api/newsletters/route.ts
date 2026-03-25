@@ -1,16 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllNewsletters, createNewsletter } from "@/lib/db";
+import { getAllNewsletters, createNewsletter, initializeDatabase } from "@/lib/db";
 
 const SITE_PASSWORD = process.env.SITE_PASSWORD || "linkus_2026";
 
+// Initialize database on first request
+let dbInitialized = false;
+
+async function ensureDatabase() {
+  if (!dbInitialized) {
+    try {
+      await initializeDatabase();
+      dbInitialized = true;
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+    }
+  }
+}
+
 export async function GET() {
   try {
+    await ensureDatabase();
     const newsletters = await getAllNewsletters();
     return NextResponse.json(newsletters);
   } catch (error) {
     console.error("Error fetching newsletters:", error);
     return NextResponse.json(
-      { error: "뉴스레터 목록을 불러올 수 없습니다." },
+      { error: "뉴스레터 목록을 불러올 수 없습니다.", details: String(error) },
       { status: 500 }
     );
   }
@@ -18,6 +33,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureDatabase();
+    
     const body = await request.json();
     const { title, author, content, password } = body;
 
@@ -40,7 +57,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating newsletter:", error);
     return NextResponse.json(
-      { error: "뉴스레터 작성에 실패했습니다." },
+      { error: "뉴스레터 작성에 실패했습니다.", details: String(error) },
       { status: 500 }
     );
   }

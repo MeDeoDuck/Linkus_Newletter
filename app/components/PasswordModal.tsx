@@ -21,9 +21,10 @@ export default function PasswordModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'linkus_2026') {
+      const passwordValue = password;
       setPassword('');
       setError('');
-      onConfirm(password);
+      onConfirm(passwordValue);
       onClose();
     } else {
       setError('비밀번호가 올바르지 않습니다.');
