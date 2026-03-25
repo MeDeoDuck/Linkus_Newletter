@@ -1,0 +1,1 @@
+---\ntitle: 첫 번째 포스트\nauthor: Admin\ndate: 2026-03-25\n---\n\n# 환영합니다!\n\n이것은 마크다운으로 작성된 첫 번째 포스트입니다.\n\n## 특징\n\n- 정적 블로그\n- Markdown 지원\n- GitHub Pages 배포\n\n새로운 포스트를 추가하려면 `public/posts/` 디렉토리에 `.md` 파일을 생성하고 다음 형식으로 작성하세요:\n\n```markdown\n---\ntitle: 포스트 제목\nauthor: 작성자 이름\ndate: YYYY-MM-DD\n---\n\n포스트 내용을 여기에 작성합니다.\n```\n
