@@ -1,72 +1,47 @@
-'use client';
+import Link from 'next/link';
+import { getAllPosts } from '@/lib/posts';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import PasswordModal from '@/components/PasswordModal';
-import NewsletterCard from '@/components/NewsletterCard';
-import { getAllNewsletters, Newsletter } from '@/lib/github';
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+}
 
 export default function Home() {
-  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    fetchNewsletters();
-  }, []);
-
-  const fetchNewsletters = async () => {
-    try {
-      const data = await getAllNewsletters();
-      setNewsletters(data);
-    } catch (error) {
-      console.error('Failed to fetch newsletters:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleNewArticle = () => {
-    setShowPasswordModal(true);
-  };
-
-  const handlePasswordConfirm = (password: string) => {
-    router.push('/write');
-  };
+  const posts = getAllPosts();
 
   return (
     <div>
-      <div className="mb-8 flex justify-between items-center">
-        <h2 className="text-2xl font-serif font-bold">최신 뉴스레터</h2>
-        <button
-          onClick={handleNewArticle}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          새 글 쓰기
-        </button>
+      <div className="mb-8">
+        <h2 className="text-2xl font-serif font-bold">최신 블로그</h2>
       </div>
 
-      {loading ? (
-        <p className="text-center text-gray-600">로딩 중...</p>
-      ) : newsletters.length === 0 ? (
+      {posts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 text-lg">아직 발행된 뉴스레터가 없습니다.</p>
+          <p className="text-gray-600 text-lg">아직 발행된 포스트가 없습니다.</p>
         </div>
       ) : (
         <div className="grid gap-6">
-          {newsletters.map((newsletter) => (
-            <NewsletterCard key={newsletter.id} newsletter={newsletter} />
+          {posts.map((post) => (
+            <Link key={post.id} href={`/posts/${post.id}`}>
+              <div className="p-6 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                <h3 className="text-xl font-serif font-bold mb-2 text-gray-900">
+                  {post.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-3">
+                  {post.author} • {formatDate(post.date)}
+                </p>
+                <p className="text-gray-700 line-clamp-3">
+                  {post.summary}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       )}
-
-      <PasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onConfirm={handlePasswordConfirm}
-        title="새 글을 쓰기 위해 비밀번호를 입력하세요"
-      />
     </div>
   );
 }
